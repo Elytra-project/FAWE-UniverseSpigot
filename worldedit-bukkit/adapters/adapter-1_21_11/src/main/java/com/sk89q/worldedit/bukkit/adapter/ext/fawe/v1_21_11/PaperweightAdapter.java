@@ -59,7 +59,6 @@ import com.sk89q.worldedit.util.formatting.text.serializer.gson.GsonComponentSer
 import com.sk89q.worldedit.util.io.file.SafeFiles;
 import com.sk89q.worldedit.world.DataFixer;
 import com.sk89q.worldedit.world.RegenOptions;
-import com.sk89q.worldedit.world.biome.BiomeCategory;
 import com.sk89q.worldedit.world.biome.BiomeType;
 import com.sk89q.worldedit.world.biome.BiomeTypes;
 import com.sk89q.worldedit.world.block.BaseBlock;
@@ -75,7 +74,6 @@ import com.sk89q.worldedit.world.item.ItemType;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.component.DataComponentPatch;
@@ -198,7 +196,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -930,22 +927,6 @@ public final class PaperweightAdapter implements BukkitImplAdapter<Tag> {
             }
         }
 
-        // BiomeCategories
-        Registry<Biome> biomeRegistry = server.registryAccess().lookupOrThrow(Registries.BIOME);
-        biomeRegistry.getTags().forEach(tag -> {
-            String key = tag.key().location().toString();
-            if (BiomeCategory.REGISTRY.get(key) == null) {
-                BiomeCategory.REGISTRY.register(key, new BiomeCategory(
-                    key,
-                    () -> biomeRegistry.get(tag.key())
-                        .stream()
-                        .flatMap(HolderSet.Named::stream)
-                        .map(Holder::value)
-                        .map(this::adapt)
-                        .collect(Collectors.toSet()))
-                );
-            }
-        });
     }
 
     @Override
