@@ -909,27 +909,26 @@ public final class PaperweightAdapter implements BukkitImplAdapter<Tag> {
 
         // Trees
         Registry<PlacedFeature> placedFeatureRegistry = server.registryAccess().lookupOrThrow(Registries.PLACED_FEATURE);
-        placedFeatureRegistry.listElements()
-            .filter(feature -> {
-                try {
-                    var underlyingFeature = feature.value().feature().value().feature();
-                    return underlyingFeature instanceof TreeFeature
-                        || underlyingFeature instanceof FallenTreeFeature
-                        || underlyingFeature instanceof CoralTreeFeature;
-                } catch (RuntimeException ignored) {
-                    return false;
+        for (Identifier name : placedFeatureRegistry.keySet()) {
+            PlacedFeature feature = placedFeatureRegistry.getValue(name);
+            if (feature == null) {
+                continue;
+            }
+            try {
+                var underlyingFeature = feature.feature().value().feature();
+                if (!(underlyingFeature instanceof TreeFeature)
+                    && !(underlyingFeature instanceof FallenTreeFeature)
+                    && !(underlyingFeature instanceof CoralTreeFeature)) {
+                    continue;
                 }
-            })
-            .forEach(feature -> {
-                Identifier name = placedFeatureRegistry.getKey(feature.value());
-                if (name == null) {
-                    return;
-                }
-                String key = name.toString();
-                if (TreeType.REGISTRY.get(key) == null) {
-                    TreeType.REGISTRY.register(key, new TreeType(key));
-                }
-            });
+            } catch (RuntimeException ignored) {
+                continue;
+            }
+            String key = name.toString();
+            if (TreeType.REGISTRY.get(key) == null) {
+                TreeType.REGISTRY.register(key, new TreeType(key));
+            }
+        }
 
         // BiomeCategories
         Registry<Biome> biomeRegistry = server.registryAccess().lookupOrThrow(Registries.BIOME);
