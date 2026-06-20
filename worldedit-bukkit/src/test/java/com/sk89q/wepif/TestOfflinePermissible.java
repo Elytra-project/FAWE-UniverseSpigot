@@ -252,6 +252,11 @@ public class TestOfflinePermissible implements OfflinePlayer, Permissible {
     }
 
     @Override
+    public @Nullable Location getRespawnLocation(boolean useBedSpawn) {
+        return null;
+    }
+
+    @Override
     public void incrementStatistic(@Nonnull Statistic statistic) throws IllegalArgumentException {
 
     }

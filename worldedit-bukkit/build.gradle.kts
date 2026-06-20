@@ -2,6 +2,7 @@ import buildlogic.sourceSets
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import io.papermc.paperweight.userdev.attribute.Obfuscation
 import me.modmuss50.mpp.ReleaseType
+import java.util.Properties
 
 plugins {
     `java-library`
@@ -58,6 +59,22 @@ val localImplementation = configurations.create("localImplementation") {
 configurations["compileOnly"].extendsFrom(localImplementation)
 configurations["testImplementation"].extendsFrom(localImplementation)
 
+val universeSpigotApiJarPath = providers.gradleProperty("universeSpigotApiJar")
+    .orElse(providers.environmentVariable("UNIVERSESPIGOT_API_JAR"))
+    .orElse(providers.environmentVariable("UNIVERSESPIGOT_KERNEL_JAR"))
+    .orElse(providers.provider {
+        val localPropertiesFile = rootProject.layout.projectDirectory.file("local.properties").asFile
+        if (!localPropertiesFile.isFile) {
+            null
+        } else {
+            Properties().apply {
+                localPropertiesFile.inputStream().use(::load)
+            }.getProperty("universeSpigotApiJar")
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+        }
+    })
+
 val adapters = configurations.create("adapters") {
     description = "Adapters to include in the JAR (Mojmap)"
     isCanBeConsumed = false
@@ -95,6 +112,18 @@ allprojects {
 dependencies {
     api(project(":worldedit-core"))
     api(project(":worldedit-libs:bukkit"))
+
+    universeSpigotApiJarPath.orNull?.let { universeSpigotApiJar ->
+        val universeSpigotApiFile = file(universeSpigotApiJar)
+        if (!universeSpigotApiFile.isFile) {
+            throw GradleException(
+                "Configured UniverseSpigot API jar does not exist. " +
+                        "Set universeSpigotApiJar, UNIVERSESPIGOT_API_JAR, " +
+                        "or UNIVERSESPIGOT_KERNEL_JAR to a readable local jar."
+            )
+        }
+        localImplementation(files(universeSpigotApiFile))
+    }
 
     localImplementation(libs.paperApi) {
         exclude("junit", "junit")

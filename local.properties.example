@@ -1,0 +1,10 @@
+# Optional local UniverseSpigot compile API.
+# Copy this file to local.properties or use one of the environment variables below.
+# Do not commit local.properties or any private server jars.
+#
+# Priority order:
+# 1. Gradle property: universeSpigotApiJar
+# 2. Environment variable: UNIVERSESPIGOT_API_JAR
+# 3. Environment variable: UNIVERSESPIGOT_KERNEL_JAR
+#
+# universeSpigotApiJar=<path-to-private-universespigot-api-or-kernel-jar>

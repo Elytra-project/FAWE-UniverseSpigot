@@ -19,6 +19,8 @@ run
 .jqwik-database
 
 /dependency-reduced-pom.xml
+local.properties
+local-libs/
 *-private.sh
 logs/
 *.bat
