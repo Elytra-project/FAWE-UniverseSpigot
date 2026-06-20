@@ -251,7 +251,6 @@ public class TestOfflinePermissible implements OfflinePlayer, Permissible {
         return null;
     }
 
-    @Override
     public @Nullable Location getRespawnLocation(boolean useBedSpawn) {
         return null;
     }

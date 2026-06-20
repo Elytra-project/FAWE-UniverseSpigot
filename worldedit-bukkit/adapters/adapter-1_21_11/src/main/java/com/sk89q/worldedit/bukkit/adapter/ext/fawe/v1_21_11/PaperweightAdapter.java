@@ -909,16 +909,27 @@ public final class PaperweightAdapter implements BukkitImplAdapter<Tag> {
 
         // Trees
         Registry<PlacedFeature> placedFeatureRegistry = server.registryAccess().lookupOrThrow(Registries.PLACED_FEATURE);
-        for (Identifier name : placedFeatureRegistry.keySet()) {
-            // Do some hackery to make sure this is a tree
-            var underlyingFeature = placedFeatureRegistry.get(name).get().value().feature().value().feature();
-            if (underlyingFeature instanceof TreeFeature || underlyingFeature instanceof FallenTreeFeature || underlyingFeature instanceof CoralTreeFeature) {
+        placedFeatureRegistry.listElements()
+            .filter(feature -> {
+                try {
+                    var underlyingFeature = feature.value().feature().value().feature();
+                    return underlyingFeature instanceof TreeFeature
+                        || underlyingFeature instanceof FallenTreeFeature
+                        || underlyingFeature instanceof CoralTreeFeature;
+                } catch (RuntimeException ignored) {
+                    return false;
+                }
+            })
+            .forEach(feature -> {
+                Identifier name = placedFeatureRegistry.getKey(feature.value());
+                if (name == null) {
+                    return;
+                }
                 String key = name.toString();
                 if (TreeType.REGISTRY.get(key) == null) {
                     TreeType.REGISTRY.register(key, new TreeType(key));
                 }
-            }
-        }
+            });
 
         // BiomeCategories
         Registry<Biome> biomeRegistry = server.registryAccess().lookupOrThrow(Registries.BIOME);
